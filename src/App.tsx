@@ -31,6 +31,8 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { HARDWARE_CONFIG } from './config';
 
+const [isCalculating, setIsCalculating] = useState(false); // 锁定状态
+
 // 日志条目结构
 interface LogEntry {
   id: string;
@@ -167,18 +169,48 @@ export default function App() {
   }, [addLog]);
 
   // 精确移动：发送 m(指定符号)+距离 指令，STM32 负责解析正负实现前进后退
-  const handleDistanceMove = () => {
+  const handleDistanceMove = async () => {
     if (!distance || isNaN(Number(distance))) {
       addLog('Invalid distance value', 'error');
       return;
     }
-    sendCommand(`${HARDWARE_CONFIG.commands.moveDistance}${distance}`);
+    const targetDist = Number(distance);
+    const direction = targetDist > 0 ? HARDWARE_CONFIG.commands.forward : HARDWARE_CONFIG.commands.backward;
+    
+    // --- PC端解算模块 ---
+    // 简化模型：时间 = 距离 / 线速度
+    // 线速度 V = 2*pi*r / 60
+    const wheelRadius = HARDWARE_CONFIG.robot_physical_params.wheel_radius;
+    const rpm = HARDWARE_CONFIG.robot_physical_params.default_speed_rpm;
+    const velocity = (2 * Math.PI * wheelRadius * rpm) / 60; // cm/s
+    const durationMs = Math.abs((targetDist / velocity) * 1000);
+
+    setIsCalculating(true); // 锁定控制
+    addLog(`[INFO] PC解算: 移动 ${targetDist}cm, 预估耗时 ${Math.round(durationMs)}ms`, 'info');
+
+    try {
+      // 1. 下发移动指令
+      await sendCommand(direction);
+      
+      // 2. 模拟前端位置环等待
+      setTimeout(async () => {
+        await sendCommand(HARDWARE_CONFIG.commands.stop);
+        setIsCalculating(false);
+        addLog(`[SUCCESS] 移动完成，到达目标位置`, 'success');
+      }, durationMs);
+
+    } catch (err) {
+      setIsCalculating(false);
+      addLog(`解算执行异常: ${err}`, 'error');
+    }
+    
     setDistance('');
   };
 
   // 键盘控制（WASD 控制方向，松开停止）
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || isCalculating) return; // 如果正在解算移动，屏蔽键盘输入，避免冲突
       // 避免在输入框内触发
       if (e.target instanceof HTMLInputElement) return;
 
@@ -283,10 +315,14 @@ export default function App() {
             </div>
             <button 
               onClick={handleDistanceMove}
-              disabled={!isBtConnected}
-              className="px-4 rounded-xl bg-green-600/10 text-green-500 border border-green-500/30 hover:bg-green-600/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              disabled={!isBtConnected || isCalculating} // 执行中禁用
+              className={`px-4 rounded-xl transition-all ${
+                isCalculating 
+                ? 'bg-orange-600/20 text-orange-500 border-orange-500/30' 
+                : 'bg-green-600/10 text-green-500 border-green-500/30 hover:bg-green-600/20'
+              }`}
             >
-              出发！
+              {isCalculating ? '执行中...' : '出发！'}
             </button>
           </div>
           <p className="text-[10px] text-zinc-500 font-mono leading-tight">

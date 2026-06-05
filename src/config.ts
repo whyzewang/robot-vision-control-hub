@@ -17,6 +17,12 @@ export const HARDWARE_CONFIG = {
     frameRate: 30,                            // 帧率（仅显示用，实际参考硬件）
     resolution: '640x480',                    // 分辨率（仅显示用，实际参考硬件）
   },
+
+  robot_physical_params: {
+    wheel_radius: 3.25,       // 轮子半径 (cm)
+    default_speed_rpm: 60,    // 默认电机转速 (转/分)
+    mm_per_sec: 20.4,         // 预估线速度 (mm/s)，也可以通过公式计算
+  },
   
   // 控制指令定义
   commands: {
