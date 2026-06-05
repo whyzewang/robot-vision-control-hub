@@ -31,8 +31,6 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { HARDWARE_CONFIG } from './config';
 
-const [isCalculating, setIsCalculating] = useState(false); // 锁定状态
-
 // 日志条目结构
 interface LogEntry {
   id: string;
@@ -42,6 +40,10 @@ interface LogEntry {
 }
 
 export default function App() {
+
+  // 锁定状态：当执行精确移动时，暂时锁定键盘输入，避免指令冲突
+  const [isCalculating, setIsCalculating] = useState(false);
+
   // 定义指令数组，方便后续维护和扩展
   const movementKeys = [
     HARDWARE_CONFIG.commands.forward,
