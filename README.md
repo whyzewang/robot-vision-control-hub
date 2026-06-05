@@ -1,138 +1,146 @@
-# 航天仿生机器人视觉控制中心
-> 微重力下面向卫星表面仿生黏附式滚动机器人运动控制研究 · 前端控制平台
->
+<div align="center">
 
-这是一个为我们的机器人项目设计的集成化控制终端。主要实现远程控制与视觉反馈。  
-通过 Web Serial api 使用蓝牙模块 (HC-05) 控制 STM32 主控的机器人小车，同时通过 WiFi 接收 OpenMV (OpenMV Cam H7 + ATWINC1500扩展板) 的实时视频回传。
+# Aerospace Bionic Robotics Vision Control Center
+
+[中文](README.zh-CN.md) | English
+
+</div>
+
+> Study on Motion Control of Biomimetic Adhesive Rolling Robot for Satellite Surface in Microgravity · Front-End Control Platform
+
+This is an integrated control terminal designed for our robotics project, primarily enabling remote control and visual feedback. 
+It uses the Web Serial API to control a robot car powered by an STM32 microcontroller via a Bluetooth module (HC-05), while simultaneously receiving real-time video streams from OpenMV (OpenMV Cam H7 with ATWINC1500 expansion board) over Wi-Fi.
 
 ---
 
-## 项目团队
-**指导单位** ：南京航空航天大学  
-**指导教师** ：俞志伟  
-**项目团队** ：王鸿泽、臧若松、刘灿、汤子豪、张蒋超
+## Project team
+
+**Supervising Institution**: Nanjing University of Aeronautics and Astronautics 
+**Supervisor**: Yu Zhiwei 
+**Project Team**: Wang Hongze, Zang Ruosong, Liu Can, Tang Zihao, Zhang Jiangchao
 
 ---
 
-## 快速开始
-如果你是第一次接触这个项目，按照下面的步骤来就行o(*￣▽￣*)ブ：
-
-### 1. 安装 Node.js
-+ 去 [Node.js 官网](https://nodejs.org/) 下载 **LTS 版本**（长期支持版）
-+ 一路点“下一步”安装就行
-+ 装完后，打开终端（Windows 搜 `cmd`，Mac 搜 `Terminal`），输入：
-
+## Getting Started 
+If this is your first time working with this project, just follow the steps below: o(*￣▽￣*)ブ 
+### 1. Install Node.js 
++ Go to the [Node.js official website](https://nodejs.org/) and download the **LTS version** (Long Term Support)
++ Simply click "Next" through the installation process
++ After installation, open the terminal (search for `cmd` on Windows, or `Terminal` on Mac), and enter: 
 ```bash
 node -v
 ```
 
-如果看到版本号（比如 v24.14.0），说明装好了
+If you see a version number (e.g., v24.14.0), it means the installation is complete.
 
-### 2. 下载代码
-把整个项目文件夹下载到电脑里，比如放在 `D:\RobotControl` 或者桌面都行。
-
-### 3. 安装依赖
-在项目文件夹里打开终端（Windows 可以右键文件夹 → “在终端中打开”），然后输入：
-
+### 2. Download the code 
+Download the entire project folder to your computer, for example, place it in `D:\RobotControl` or on your desktop. 
+### 3. Install Dependencies 
+Open the terminal in the project folder (on Windows, right-click the folder → "Open in Terminal"), then enter: 
 ```bash
 npm install
 ```
 
-### 4. 启动项目
-
+### 4. Launch the Project 
 ```bash
 npm run dev
 ```
 
-终端会显示一个地址，一般是 [http://localhost:3000](http://localhost:3000)。按住Ctrl 键点击这个链接，或者在浏览器里输入这个地址，就能看到控制界面了。
+The terminal will display an address, usually [http://localhost:3000](http://localhost:3000). Hold down the Ctrl key and click the link, or enter this address in your browser to view the control interface. 
 
-> 如果显示在此系统上禁止运行脚本，先运行命令：` powershell -ExecutionPolicy Bypass`，之后再运行`npm run dev` 
-
----
-
-## 参数配置
-| 参数 | 值 |
-| --- | --- |
-| **OpenMV IP** | `http://192.168.43.203:8080` |
-| **蓝牙波特率** | `9600` |
-| **控制指令** | `w/a/s/d/q/m<数值>` |
-
-## 怎么用
-### 蓝牙连接（HC-05）
-1. **电脑配对**：先在电脑的蓝牙设置里搜索并连接 HC-05（配对码通常是 `1234` 或 `0000`）
-2. **网页连接**：在控制界面点击** “连接蓝牙”**，选择刚才配对的设备（名字可能叫 HC-05 或者一串蓝牙地址）
-3. 连接成功后，状态灯会变绿
-
-### WiFi 图传（OpenMV）
-1. 确保 OpenMV 已经烧录了 WiFi 推流程序
-2. 电脑和 OpenMV 连到同一个 WiFi 网络
-3. 在控制界面输入 OpenMV 的 IP 地址（比如 [http://192.168.1.100:8080](http://192.168.1.100:8080)），点击电源图标开启视频流。
-
-### 控制方式
-| 方式 | 操作 |
-| --- | --- |
-| **键盘** | W/A/S/D 控制前后左右，松开自动停止 |
-| **屏幕按钮** | 用鼠标点击方向键，松手即停 |
-| **精确移动** | 输入距离（cm），点“移动”执行 |
-| **紧急停止** | 点红色急停按钮，或按键盘任意方向键后再按一次（发送 q 指令） |
+> If you see a message indicating that scripts are disabled on this system, first run the command: `powershell -ExecutionPolicy Bypass`, then run `npm run dev`.
 
 ---
 
-## 注意事项
+## Parameter Configuration
 
-### 浏览器兼容性
-这个项目用到了 **Web Serial API** 来连接蓝牙，所以：
+| Parameter               | Value                        |
+| ----------------------- | ---------------------------- |
+| **OpenMV IP**           | `http://192.168.43.203:8080` |
+| **Bluetooth Baud Rate** | `9600`                       |
+| **Control Command**     | `w/a/s/d/q/m<value>`         |
 
-| 浏览器 | 是否支持 |
-| --- | --- |
-| Chrome | 支持 |
-| Edge | 支持 |
-| Safari | 不支持 |
-| Firefox | 不支持 |
+## How to use
 
+### Bluetooth connection（HC-05）
 
-所以请用 **Chrome 或 Edge** 打开
+1. **Computer Pairing**: First, search for and connect to the HC-05 in your computer's Bluetooth settings (the pairing code is usually `1234` or `0000`).  
+2. **Web Connection**: In the control interface, click **"Connect Bluetooth"**, then select the device you just paired (it may appear as HC-05 or a string of Bluetooth address).  
+3. Once connected successfully, the status light will turn green. 
 
-### 常见问题
-+ **连接蓝牙时找不到设备？**  
-先确认电脑蓝牙已开启，HC-05 是否在配对模式（红色指示灯快闪）。配对成功后才能在网页里看到。
-+ **视频流加载失败？**  
-检查电脑和 OpenMV 是否在同一 WiFi 下，IP 地址是否正确（可以用浏览器直接访问 [http://IP:8080](http://IP:8080) 测试）。
-+ **按键没反应？**  
-看看右上角蓝牙状态灯是不是绿色的。如果是灰色，说明没连上。
+### WiFi Video Transmission (OpenMV) 
+
+1. Ensure the OpenMV has been programmed with the WiFi streaming firmware.  
+2. Connect your computer and the OpenMV to the same WiFi network.  
+3. Enter the OpenMV's IP address in the control interface (e.g., [http://192.168.1.100:8080](http://192.168.1.100:8080)), then click the power icon to start the video stream.
+
+### Control method
+
+| Method               | Operation                                                    |
+| -------------------- | ------------------------------------------------------------ |
+| **Keyboard**         | Use W/A/S/D to control forward, backward, left, and right; release to stop automatically |
+| **Screen Buttons**   | Click the arrow keys with the mouse; release to stop immediately |
+| **Precise Movement** | Enter distance (cm), then click "Move" to execute            |
+| **Emergency Stop**   | Click the red emergency stop button, or press any direction key twice (sends 'q' command) |
 
 ---
 
-## 项目结构
+## Notes 
+### Browser Compatibility 
+This project uses the **Web Serial API** to connect via Bluetooth, so: 
+| Browser | Supported     |
+| ------- | ------------- |
+| Chrome  | Supported     |
+| Edge    | Supported     |
+| Safari  | Not supported |
+| Firefox | Not supported |
+
+So please open it using **Chrome or Edge**
+
++ ### Frequently Asked Questions 
+  + **Can't find the device when connecting via Bluetooth? **
+  First, make sure your computer's Bluetooth is turned on and that the HC-05 is in pairing mode (red LED blinking rapidly). The device will only appear on the webpage after successful pairing.  
+  + **Video stream failed to load? **
+  Check if the computer and OpenMV are on the same WiFi network, and verify that the IP address is correct (you can test by directly accessing [http://IP:8080](http://IP:8080) in a browser).  
+  + **No response from buttons? **
+  Check if the Bluetooth status light in the upper right corner is green. If it's gray, that means it's not connected.
+
+---
+
+## Project Structure
+
 ```bash
 robot-vision-control-hub/
-├── src/
-│   ├── App.tsx          # 主界面组件（控制逻辑 + UI）
-│   ├── main.tsx         # 入口文件
-├── ├── config.ts        # 参数配置
-│   └── index.css        # 全局样式（Tailwind + 自定义）
-├── index.html           # HTML 模板
-├── vite.config.ts       # Vite 构建配置
-├── package.json         # 项目依赖
-└── README.md            # 本文件
+├── .gitignore           # Git ignore rules  
+├── CHANGELOG.md         # Version update history  
+├── LICENSE              # MIT License ├── src/
+│   ├── App.tsx          # Main interface component (control logic + UI)  
+│   ├── main.tsx         # Entry file  
+|   ├── config.ts        # Configuration parameters  
+│   └── index.css        # Global styles (Tailwind + custom) 
+├── index.html           # HTML template  
+├── vite.config.ts       # Vite build configuration  
+├── package.json         # Project dependencies  
+├── README.zh-CN.md
+└── README.md            
 ```
 
 ---
 
-## 技术栈
+## Technology Stack
 
-| 技术 | 用途 |
-| --- | --- |
-| React 19 | 前端框架 |
-| TypeScript | 类型安全 |
-| Vite | 构建工具 |
-| Tailwind CSS | 样式设计 |
-| Web Serial API | 蓝牙通信（HC-05） |
-| MJPEG | WiFi 视频流（OpenMV） |
+| Technology     | Application                     |
+| -------------- | ------------------------------- |
+| React 19       | Frontend framework              |
+| TypeScript     | Type safety                     |
+| Vite           | Build tool                      |
+| Tailwind CSS   | Styling                         |
+| Web Serial API | Bluetooth communication (HC-05) |
+| MJPEG          | WiFi video streaming (OpenMV)   |
 
 ---
 
-## STM32 代码逻辑示例
+## STM32 Code Logic Example
 
 ``` c
 char rx_buffer[20];
@@ -159,19 +167,17 @@ void process_command(char* cmd) {
     else if (cmd[0] == 'd') Turn_Right();
     else if (cmd[0] == 'q') Stop_Robot();
     else if (cmd[0] == 'm') {
-        // 精准移动指令，例如 "m20" 代表前进 20cm
+        // Precise movement commands, such as "m20" meaning move forward 20 cm
         int dist = atoi(cmd + 1); 
-        Move_Distance(dist); // 正数前进，负数后退
+        Move_Distance(dist); // Positive numbers move forward, negative numbers move backward.
     }
 }
 ```
 
 ---
 
-## 致谢
+## Acknowledgments
 
-本项目为大学生创新创业训练计划项目成果，感谢指导老师的支持，以及团队成员的共同努力。
-
-如有问题，欢迎联系
-
-王鸿泽：`wanghongze@nuaa.edu.cn`
+This project is the outcome of a university student innovation and entrepreneurship training program. We gratefully acknowledge the support of our advisor and the dedicated efforts of all team members. 
+For any questions, please feel free to contact us. 
+Wang Hongze: `wanghongze@nuaa.edu.cn`
