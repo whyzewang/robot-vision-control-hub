@@ -25,7 +25,8 @@ import {
   Power,
   RefreshCw,
   Eye,
-  Zap
+  Zap,
+  Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { HARDWARE_CONFIG } from './config';
@@ -70,8 +71,49 @@ export default function App() {
       message,
       type
     };
-    setLogs(prev => [newLog, ...prev].slice(0, 50));
+    setLogs(prev => [newLog, ...prev]);
   }, []);
+
+  // ----- 日志导出 -----
+  const exportLogsToCSV = useCallback(() => {
+    if (logs.length === 0) {
+      addLog('当前没有日志可以导出', 'error');
+      return;
+    }
+
+    // 添加 BOM 头，防止 Excel 打开 CSV 时中文乱码
+    const BOM = '\uFEFF';
+    // 定义 CSV 表头
+    let csvContent = BOM + "时间戳,日志类型,日志内容\n";
+
+    // 反转数组，让导出的日志按照时间从早到晚排序（可选）
+    const reversedLogs = [...logs].reverse();
+
+    // 遍历日志，生成 CSV 数据
+    reversedLogs.forEach(log => {
+      // 处理内容中可能包含的逗号或双引号
+      const safeMessage = `"${log.message.replace(/"/g, '""')}"`;
+      csvContent += `${log.timestamp},${log.type},${safeMessage}\n`;
+    });
+
+    // 创建 Blob 对象并生成下载链接
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    // 生成名为 Robot_Telemetry_Log_XXX.csv 的文件
+    const dateStr = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const fileName = `Robot_Telemetry_Log_${dateStr}.csv`;
+
+    // 模拟点击进行下载
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    addLog(`日志已导出: ${fileName}`, 'success');
+  }, [logs, addLog]);
 
   // 连接蓝牙（通过 Web Serial API 连接 HC-05 模块）
   const connectBluetooth = async () => {
@@ -258,8 +300,16 @@ export default function App() {
             <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest text-zinc-500">
               <Terminal size={12} /> 控制台输出
             </div>
+            <button 
+              onClick={exportLogsToCSV}
+              className="flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-800/40 hover:bg-zinc-800 hover:text-blue-400 transition-colors cursor-pointer group border border-transparent hover:border-blue-500/30"
+              title="导出 CSV 文件"
+            >
+              <Download size={10} className="group-hover:-translate-y-0.5 transition-transform" />
+              <span>导出日志</span>
+            </button>
             <div className="flex-1 bg-black/40 rounded-xl p-3 font-mono text-[11px] overflow-y-auto space-y-1 scrollbar-hide">
-              {logs.map(log => (
+              {logs.slice(0, 50).map(log => (
                 <div key={log.id} className="flex gap-2 leading-relaxed">
                   <span className="text-zinc-600 shrink-0">[{log.timestamp}]</span>
                   <span className={
